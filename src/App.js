@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Alert, AlertDescription } from './components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import LoginForm from './components/auth/LoginForm';
 import GroupList from './components/groups/GroupList';

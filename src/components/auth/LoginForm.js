@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import { Input } from '../ui/input';
+import { Button } from '../ui/button';
 import { login } from '../../services/auth';
 
 const LoginForm = ({ onLoginSuccess }) => {
@@ -22,7 +22,7 @@ const LoginForm = ({ onLoginSuccess }) => {
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Password Vault Login</CardTitle>
+          <CardTitle>Baby Turtle Password Vault Login</CardTitle>
           <CardDescription>Please login to access your passwords</CardDescription>
         </CardHeader>
         <CardContent>
