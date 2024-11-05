@@ -1,33 +1,12 @@
 import React from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import PasswordForm from './PasswordForm';
 
 const PasswordList = ({ 
   groupId, 
   passwords, 
   onCreatePassword 
 }) => {
-  const [newPassword, setNewPassword] = React.useState({
-    title: '',
-    username: '',
-    password: '',
-    url: '',
-    notes: ''
-  });
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    await onCreatePassword({ ...newPassword, group_id: groupId });
-    setNewPassword({
-      title: '',
-      username: '',
-      password: '',
-      url: '',
-      notes: ''
-    });
-  };
-
   if (!groupId) {
     return (
       <Card>
@@ -44,74 +23,53 @@ const PasswordList = ({
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Passwords</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="mb-4 space-y-4">
-          <div className="space-y-2">
-            <Input
-              placeholder="Title"
-              value={newPassword.title}
-              onChange={(e) => setNewPassword(prev => ({
-                ...prev,
-                title: e.target.value
-              }))}
-            />
-            <Input
-              placeholder="Username"
-              value={newPassword.username}
-              onChange={(e) => setNewPassword(prev => ({
-                ...prev,
-                username: e.target.value
-              }))}
-            />
-            <Input
-              type="password"
-              placeholder="Password"
-              value={newPassword.password}
-              onChange={(e) => setNewPassword(prev => ({
-                ...prev,
-                password: e.target.value
-              }))}
-            />
-            <Input
-              placeholder="URL"
-              value={newPassword.url}
-              onChange={(e) => setNewPassword(prev => ({
-                ...prev,
-                url: e.target.value
-              }))}
-            />
-            <Input
-              placeholder="Notes"
-              value={newPassword.notes}
-              onChange={(e) => setNewPassword(prev => ({
-                ...prev,
-                notes: e.target.value
-              }))}
-            />
-          </div>
-          <Button type="submit" className="w-full">Add Password</Button>
-        </form>
+    <div className="space-y-4">
+      <Card>
+        <CardHeader>
+          <CardTitle>Add Password</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <PasswordForm
+            groupId={groupId}
+            onSubmit={onCreatePassword}
+          />
+        </CardContent>
+      </Card>
 
-        <div className="space-y-2">
-          {passwords.map(password => (
-            <Card key={password.id} className="p-4">
-              <h3 className="font-bold">{password.title}</h3>
-              <p className="text-sm">Username: {password.username}</p>
-              <p className="text-sm">
-                Password: <span className="font-mono">••••••••</span>
+      <Card>
+        <CardHeader>
+          <CardTitle>Stored Passwords</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {passwords.map(password => (
+              <Card key={password.id} className="bg-gray-50">
+                <CardContent className="p-4">
+                  <h3 className="font-bold">{password.title}</h3>
+                  <p className="text-sm">Username: {password.username}</p>
+                  <p className="text-sm">
+                    Password: <span className="font-mono">••••••••</span>
+                  </p>
+                  {password.url && (
+                    <p className="text-sm">
+                      URL: <a href={password.url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{password.url}</a>
+                    </p>
+                  )}
+                  {password.notes && (
+                    <p className="text-sm text-gray-600 mt-2">{password.notes}</p>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+            {passwords.length === 0 && (
+              <p className="text-center text-gray-500">
+                No passwords stored in this group yet.
               </p>
-              {password.url && (
-                <p className="text-sm">URL: {password.url}</p>
-              )}
-            </Card>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 
