@@ -22,7 +22,7 @@ const LoginForm = ({ onLoginSuccess }) => {
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Baby Turtle Password Vault Login</CardTitle>
+          <CardTitle>🐢 Password Vault Login</CardTitle>
           <CardDescription>Please login to access your passwords</CardDescription>
         </CardHeader>
         <CardContent>

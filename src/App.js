@@ -82,7 +82,7 @@ const App = () => {
     <div className="min-h-screen bg-gray-100">
       <div className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-xl font-semibold text-gray-900">Password Vault</h1>
+          <h1 className="text-xl font-semibold text-gray-900">🐢 Password Vault</h1>
           <Button 
             variant="outline" 
             onClick={handleLogout}
