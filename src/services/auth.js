@@ -1,4 +1,5 @@
 // src/services/auth.js
+
 export const login = async (username, password) => {
   try {
     const formData = new URLSearchParams();
@@ -10,8 +11,7 @@ export const login = async (username, password) => {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: formData,
-      credentials: 'include'
+      body: formData
     });
 
     const data = await response.json();
@@ -20,11 +20,6 @@ export const login = async (username, password) => {
       throw new Error(data.detail || 'Login failed');
     }
 
-    if (!data.access_token) {
-      throw new Error('No access token received');
-    }
-
-    // Store the raw token without the Bearer prefix
     localStorage.setItem('token', data.access_token);
     return data;
   } catch (error) {
@@ -35,16 +30,14 @@ export const login = async (username, password) => {
 
 export const logout = () => {
   localStorage.removeItem('token');
-  window.location.reload();
+  window.location.href = '/';
 };
 
 export const isAuthenticated = () => {
-  const token = localStorage.getItem('token');
-  return Boolean(token);
+  return !!localStorage.getItem('token');
 };
 
-// Use this to get the full token with Bearer prefix
-export const getAuthToken = () => {
+export const getAuthHeader = () => {
   const token = localStorage.getItem('token');
-  return token ? `Bearer ${token}` : null;
+  return token ? `Bearer ${token}` : '';
 };

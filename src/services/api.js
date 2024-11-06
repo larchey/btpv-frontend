@@ -1,57 +1,60 @@
 // src/services/api.js
+import { logout, getAuthHeader } from './auth';
+
 const API_BASE = '/api/v1';
 
 const authFetch = async (url, options = {}) => {
-  const token = localStorage.getItem('token');
+  const authHeader = getAuthHeader();
   
-  if (!token) {
-    throw new Error('No authentication token available');
+  if (!authHeader) {
+    throw new Error('Authentication required');
   }
 
-  // Properly format the Authorization header
   const headers = {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`,
+    'Authorization': authHeader,
     ...options.headers
   };
 
   try {
-    const response = await fetch(`${API_BASE}${url}`, {
+    const fullUrl = `${API_BASE}${url}`;
+    const response = await fetch(fullUrl, {
       ...options,
-      headers,
-      credentials: 'include'  // Include credentials in the request
+      headers
     });
 
-    // Try to parse the response as JSON first
+    // For 204 No Content responses
+    if (response.status === 204) {
+      return null;
+    }
+
+    // Try to parse JSON response
     let data;
     try {
       data = await response.json();
     } catch (e) {
-      // If response is not JSON, return null for empty responses
-      if (response.status === 204) {
-        return null;
+      if (!response.ok) {
+        throw new Error('Request failed');
       }
-      throw e;
+      return null;
     }
 
-    // Handle non-200 responses
+    // Handle errors
     if (!response.ok) {
-      // Special handling for authentication errors
       if (response.status === 401) {
-        localStorage.removeItem('token');
-        throw new Error('Authentication failed. Please login again.');
+        logout();
       }
-      throw new Error(data?.detail || response.statusText || 'Request failed');
+      throw new Error(data.detail || 'Request failed');
     }
 
     return data;
   } catch (error) {
-    // If it's already an Error object, rethrow it
-    if (error instanceof Error) {
-      throw error;
+    if (error.message === 'Authentication required' || 
+        error.message.includes('unauthorized') || 
+        error.message.includes('invalid token')) {
+      logout();
     }
-    // Otherwise, wrap it in an Error
-    throw new Error('An unexpected error occurred');
+    throw error;
   }
 };
 
