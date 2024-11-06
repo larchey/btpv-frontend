@@ -74,6 +74,9 @@ const App = () => {
       // Add group_id to password data
       const fullPasswordData = {
         ...passwordData,
+        url: passwordData.url === '' ? null : passwordData.url,
+        encryption_key: "",
+        encypted_password: "",
         group_id: selectedGroup
       };
 
