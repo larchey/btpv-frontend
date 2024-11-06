@@ -1,14 +1,16 @@
 // src/services/passwords.js
 import authFetch from './api';
 
-export const getGroupPasswords = async (groupId) => {
+export const generatePassword = async () => {
   try {
-    return await authFetch(`/passwords/group/${groupId}`);
+    const response = await authFetch('/passwords/generate');  // Changed to GET request
+    return response;
   } catch (error) {
-    console.error('Failed to fetch passwords:', error);
+    console.error('Failed to generate password:', error);
     throw error;
   }
 };
+
 
 export const createPassword = async (passwordData) => {
   try {
@@ -22,16 +24,14 @@ export const createPassword = async (passwordData) => {
   }
 };
 
-export const generatePassword = async (length = 16) => {
+export const getGroupPasswords = async (groupId) => {
   try {
-    const response = await authFetch(`/passwords/generate?length=${length}`);
-    return response.password;
+    return await authFetch(`/passwords/group/${groupId}`);
   } catch (error) {
-    console.error('Failed to generate password:', error);
+    console.error('Failed to fetch passwords:', error);
     throw error;
   }
 };
-
 export const updatePassword = async (passwordId, passwordData) => {
   try {
     return await authFetch(`/passwords/${passwordId}`, {

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
+import { Eye, EyeOff, RefreshCw } from 'lucide-react';
 import { generatePassword } from '../../services/passwords';
 
 const PasswordForm = ({ onSubmit }) => {
@@ -12,6 +12,8 @@ const PasswordForm = ({ onSubmit }) => {
     url: '',
     notes: ''
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -23,13 +25,19 @@ const PasswordForm = ({ onSubmit }) => {
 
   const handleGeneratePassword = async () => {
     try {
-      const generatedPassword = await generatePassword();
-      setForm(prev => ({
-        ...prev,
-        password: generatedPassword
-      }));
+      setIsGenerating(true);
+      const response = await generatePassword();
+      if (response && response.password) {
+        setForm(prev => ({
+          ...prev,
+          password: response.password
+        }));
+        setShowPassword(true);
+      }
     } catch (error) {
       console.error('Failed to generate password:', error);
+    } finally {
+      setIsGenerating(false);
     }
   };
 
@@ -43,6 +51,7 @@ const PasswordForm = ({ onSubmit }) => {
       url: '',
       notes: ''
     });
+    setShowPassword(false);
   };
 
   return (
@@ -63,32 +72,45 @@ const PasswordForm = ({ onSubmit }) => {
           required
         />
         <div className="flex gap-2">
-          <Input
-            name="password"
-            type="password"
-            placeholder="Password"
-            value={form.password}
-            onChange={handleInputChange}
-            required
-          />
+          <div className="relative flex-1">
+            <Input
+              name="password"
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              value={form.password}
+              onChange={handleInputChange}
+              required
+              className="pr-10"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+            >
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
+          </div>
           <Button
             type="button"
             onClick={handleGeneratePassword}
-            className="whitespace-nowrap"
+            disabled={isGenerating}
+            size="icon"
+            variant="outline"
+            className="px-3"
           >
-            Generate
+            <RefreshCw size={20} className={isGenerating ? 'animate-spin' : ''} />
           </Button>
         </div>
         <Input
           name="url"
           type="url"
-          placeholder="URL"
+          placeholder="URL (optional)"
           value={form.url}
           onChange={handleInputChange}
         />
         <Input
           name="notes"
-          placeholder="Notes"
+          placeholder="Notes (optional)"
           value={form.notes}
           onChange={handleInputChange}
         />
