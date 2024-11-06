@@ -1,14 +1,16 @@
 // src/services/passwords.js
 import authFetch from './api';
 
-export const generatePassword = async () => {
-  try {
-    const response = await authFetch('/passwords/generate');  // Changed to GET request
-    return response;
-  } catch (error) {
-    console.error('Failed to generate password:', error);
-    throw error;
+export const generatePassword = (length = 16) => {
+  const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{}|;:,.<>?";
+  const array = new Uint8Array(length);
+  window.crypto.getRandomValues(array);
+  
+  let password = '';
+  for (let i = 0; i < length; i++) {
+    password += charset[array[i] % charset.length];
   }
+  return password;
 };
 
 

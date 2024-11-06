@@ -23,22 +23,12 @@ const PasswordForm = ({ onSubmit }) => {
     }));
   };
 
-  const handleGeneratePassword = async () => {
-    try {
-      setIsGenerating(true);
-      const response = await generatePassword();
-      if (response && response.password) {
-        setForm(prev => ({
-          ...prev,
-          password: response.password
-        }));
-        setShowPassword(true);
-      }
-    } catch (error) {
-      console.error('Failed to generate password:', error);
-    } finally {
-      setIsGenerating(false);
-    }
+  const handleGeneratePassword = () => {
+    const newPassword = generatePassword();
+    setForm(prev => ({
+      ...prev,
+      password: newPassword
+    }));
   };
 
   const handleSubmit = (e) => {
