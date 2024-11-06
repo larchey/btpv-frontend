@@ -5,7 +5,6 @@ import { FaPlus, FaMinus, FaEye, FaEyeSlash, FaClipboard } from 'react-icons/fa'
 import { Button } from "../ui/button";
 
 const PasswordList = ({ groupId, passwords, onCreatePassword }) => {
-  console.log(passwords)
   const [showForm, setShowForm] = useState(false);
   const [showPassword, setShowPassword] = useState({});
 

@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Alert, AlertDescription } from "./components/ui/alert";
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Users } from 'lucide-react';
+import { Button } from "./components/ui/button";
 import LoginForm from './components/auth/LoginForm';
 import GroupList from './components/groups/GroupList';
 import PasswordList from './components/passwords/PasswordList';
+import UserManagement from './components/UserManagement';
 import { isAuthenticated, logout } from './services/auth';
 import { getGroups, createGroup } from './services/groups';
-import { getGroupPasswords, createPassword, generatePassword } from './services/passwords';
+import { getGroupPasswords, createPassword } from './services/passwords';
+import { getCurrentUser } from './services/users';
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -14,10 +17,13 @@ const App = () => {
   const [groups, setGroups] = useState([]);
   const [passwords, setPasswords] = useState([]);
   const [error, setError] = useState('');
+  const [showUserManagement, setShowUserManagement] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const handleLoginSuccess = () => {
     setIsLoggedIn(true);
     fetchGroups();
+    checkAdminStatus();
   };
 
   const handleLogout = () => {
@@ -26,6 +32,16 @@ const App = () => {
     setSelectedGroup(null);
     setGroups([]);
     setPasswords([]);
+    setIsAdmin(false);
+  };
+
+  const checkAdminStatus = async () => {
+    try {
+      const userData = await getCurrentUser()
+      setIsAdmin(userData.is_admin);
+    } catch (err) {
+      console.error('Failed to check admin status:', err);
+    }
   };
 
   const fetchGroups = async () => {
@@ -95,6 +111,7 @@ const App = () => {
     if (isAuthenticated()) {
       setIsLoggedIn(true);
       fetchGroups();
+      checkAdminStatus();
     }
   }, []);
 
@@ -107,14 +124,30 @@ const App = () => {
       <div className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
           <h1 className="text-xl font-semibold text-gray-900">Password Vault</h1>
-          <button 
-            className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
-            onClick={handleLogout}
-          >
-            Logout
-          </button>
+          <div className="flex items-center space-x-4">
+            {isAdmin && (
+              <Button
+                onClick={() => setShowUserManagement(true)}
+                variant="outline"
+                className="flex items-center space-x-2"
+              >
+                <Users size={18} />
+                <span>Manage Users</span>
+              </Button>
+            )}
+            <Button 
+              variant="outline" 
+              onClick={handleLogout}
+            >
+              Logout
+            </Button>
+          </div>
         </div>
       </div>
+      
+      {showUserManagement && (
+        <UserManagement onClose={() => setShowUserManagement(false)} />
+      )}
 
       <div className="max-w-7xl mx-auto p-4 space-y-4">
         {error && (
