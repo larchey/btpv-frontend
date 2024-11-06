@@ -1,76 +1,56 @@
+// src/services/passwords.js
 import authFetch from './api';
-import EncryptionService from './encryption';
-
-export const createPassword = async (passwordData) => {
-  try {
-    // Generate a unique encryption key
-    const encryptionKey = await EncryptionService.generateKey();
-    
-    // Encrypt the password
-    const encryptedPassword = await EncryptionService.encrypt(
-      passwordData.password,
-      encryptionKey
-    );
-
-    // Create the password entry with encrypted data
-    const response = await authFetch('/passwords', {
-      method: 'POST',
-      body: JSON.stringify({
-        ...passwordData,
-        password: encryptedPassword,
-        encryption_key: encryptionKey
-      }),
-    });
-
-    return response;
-  } catch (error) {
-    console.error('Failed to create password:', error);
-    throw error;
-  }
-};
 
 export const getGroupPasswords = async (groupId) => {
   try {
-    const passwords = await authFetch(`/passwords/group/${groupId}`);
-    // We don't decrypt passwords until they're needed
-    return passwords;
+    return await authFetch(`/passwords/group/${groupId}`);
   } catch (error) {
     console.error('Failed to fetch passwords:', error);
     throw error;
   }
 };
 
-export const getPassword = async (passwordId) => {
+export const createPassword = async (passwordData) => {
   try {
-    const password = await authFetch(`/passwords/${passwordId}`);
-    
-    // Decrypt the password
-    if (password.encrypted_password && password.encryption_key) {
-      const decryptedPassword = await EncryptionService.decrypt(
-        password.encrypted_password,
-        password.encryption_key
-      );
-      return {
-        ...password,
-        decrypted_password: decryptedPassword
-      };
-    }
-    
-    return password;
+    return await authFetch('/passwords', {
+      method: 'POST',
+      body: JSON.stringify(passwordData),
+    });
   } catch (error) {
-    console.error('Failed to fetch password:', error);
+    console.error('Failed to create password:', error);
     throw error;
   }
 };
 
-export const generateSecurePassword = (length = 16) => {
-  const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{}|;:,.<>?";
-  const array = new Uint8Array(length);
-  window.crypto.getRandomValues(array);
-  
-  let password = '';
-  for (let i = 0; i < length; i++) {
-    password += charset[array[i] % charset.length];
+export const generatePassword = async (length = 16) => {
+  try {
+    const response = await authFetch(`/passwords/generate?length=${length}`);
+    return response.password;
+  } catch (error) {
+    console.error('Failed to generate password:', error);
+    throw error;
   }
-  return password;
+};
+
+export const updatePassword = async (passwordId, passwordData) => {
+  try {
+    return await authFetch(`/passwords/${passwordId}`, {
+      method: 'PUT',
+      body: JSON.stringify(passwordData),
+    });
+  } catch (error) {
+    console.error('Failed to update password:', error);
+    throw error;
+  }
+};
+
+export const deletePassword = async (passwordId) => {
+  try {
+    return await authFetch(`/passwords/${passwordId}`, {
+      method: 'DELETE',
+    });
+  } catch (error) {
+    console.error('Failed to delete password:', error);
+    throw error;
+  }
 };

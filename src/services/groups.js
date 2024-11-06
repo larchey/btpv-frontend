@@ -1,32 +1,45 @@
+// src/services/groups.js
 import authFetch from './api';
 
 export const getGroups = async () => {
-  const response = await authFetch('/groups');
-  if (!response.ok) throw new Error('Failed to fetch groups');
-  return response.json();
+  try {
+    return await authFetch('/groups');
+  } catch (error) {
+    console.error('Failed to fetch groups:', error);
+    throw error;
+  }
 };
 
 export const createGroup = async (groupData) => {
-  const response = await authFetch('/groups', {
-    method: 'POST',
-    body: JSON.stringify(groupData),
-  });
-  if (!response.ok) throw new Error('Failed to create group');
-  return response.json();
+  try {
+    return await authFetch('/groups', {
+      method: 'POST',
+      body: JSON.stringify(groupData)
+    });
+  } catch (error) {
+    console.error('Failed to create group:', error);
+    throw error;
+  }
 };
 
 export const addGroupMember = async (groupId, username) => {
-  const response = await authFetch(`/groups/${groupId}/members/${username}`, {
-    method: 'POST',
-  });
-  if (!response.ok) throw new Error('Failed to add member');
-  return response.json();
+  try {
+    return await authFetch(`/groups/${groupId}/members/${username}`, {
+      method: 'POST'
+    });
+  } catch (error) {
+    console.error('Failed to add member:', error);
+    throw error;
+  }
 };
 
 export const removeGroupMember = async (groupId, username) => {
-  const response = await authFetch(`/groups/${groupId}/members/${username}`, {
-    method: 'DELETE',
-  });
-  if (!response.ok) throw new Error('Failed to remove member');
-  return response.json();
+  try {
+    return await authFetch(`/groups/${groupId}/members/${username}`, {
+      method: 'DELETE'
+    });
+  } catch (error) {
+    console.error('Failed to remove member:', error);
+    throw error;
+  }
 };

@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Alert, AlertDescription } from "./components/ui/alert";
-import { Button } from "./components/ui/button";
 import { AlertCircle } from 'lucide-react';
 import LoginForm from './components/auth/LoginForm';
 import GroupList from './components/groups/GroupList';
 import PasswordList from './components/passwords/PasswordList';
-import { isAuthenticated } from './services/auth';
+import { isAuthenticated, logout } from './services/auth';
 import { getGroups, createGroup } from './services/groups';
-import { getGroupPasswords, createPassword } from './services/passwords';
+import { getGroupPasswords, createPassword, generatePassword } from './services/passwords';
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -22,7 +21,7 @@ const App = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
+    logout();
     setIsLoggedIn(false);
     setSelectedGroup(null);
     setGroups([]);
@@ -31,39 +30,61 @@ const App = () => {
 
   const fetchGroups = async () => {
     try {
+      setError('');
       const data = await getGroups();
       setGroups(data);
     } catch (err) {
-      setError('Failed to fetch groups');
+      if (err.message.includes('expired')) {
+        handleLogout();
+      } else {
+        setError('Failed to fetch groups: ' + err.message);
+      }
     }
   };
 
   const handleCreateGroup = async (groupData) => {
     try {
+      setError('');
       await createGroup(groupData);
-      fetchGroups();
+      await fetchGroups();
     } catch (err) {
-      setError('Failed to create group');
+      setError('Failed to create group: ' + err.message);
     }
   };
 
   const handleSelectGroup = async (groupId) => {
-    setSelectedGroup(groupId);
     try {
+      setError('');
+      setSelectedGroup(groupId);
       const data = await getGroupPasswords(groupId);
       setPasswords(data);
     } catch (err) {
-      setError('Failed to fetch passwords');
+      setError('Failed to fetch passwords: ' + err.message);
     }
   };
 
   const handleCreatePassword = async (passwordData) => {
     try {
-      await createPassword(passwordData);
-      const data = await getGroupPasswords(selectedGroup);
-      setPasswords(data);
+      setError('');
+      if (!selectedGroup) {
+        setError('Please select a group first');
+        return;
+      }
+      
+      // Add group_id to password data
+      const fullPasswordData = {
+        ...passwordData,
+        group_id: selectedGroup
+      };
+
+      // Create the password
+      await createPassword(fullPasswordData);
+      
+      // Refresh the password list
+      const updatedPasswords = await getGroupPasswords(selectedGroup);
+      setPasswords(updatedPasswords);
     } catch (err) {
-      setError('Failed to create password');
+      setError('Failed to create password: ' + err.message);
     }
   };
 
@@ -82,17 +103,16 @@ const App = () => {
     <div className="min-h-screen bg-gray-100">
       <div className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-xl font-semibold text-gray-900">🐢 Password Vault</h1>
-          <Button 
-            variant="outline" 
+          <h1 className="text-xl font-semibold text-gray-900">Password Vault</h1>
+          <button 
+            className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
             onClick={handleLogout}
-            className="text-gray-600 hover:text-gray-900"
           >
             Logout
-          </Button>
+          </button>
         </div>
       </div>
-      
+
       <div className="max-w-7xl mx-auto p-4 space-y-4">
         {error && (
           <Alert variant="destructive">
