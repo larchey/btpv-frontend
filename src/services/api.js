@@ -1,5 +1,5 @@
 // src/services/api.js
-const API_BASE = '/api/v1';  // Remove hardcoded URL
+const API_BASE = 'http://localhost:8000/api/v1';  
 
 const authFetch = async (url, options = {}) => {
   const token = localStorage.getItem('token');
