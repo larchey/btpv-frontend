@@ -3,8 +3,8 @@ import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "./ui/
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Alert, AlertDescription } from "./ui/alert";
-import { AlertCircle, Check } from "lucide-react";
-import { getUsers, createUser } from '../services/users';
+import { AlertCircle, Check, Trash2 } from "lucide-react";
+import { getUsers, createUser, deleteUser } from '../services/users';
 
 const UserManagement = ({ onClose }) => {
   const [users, setUsers] = useState([]);
@@ -23,6 +23,22 @@ const UserManagement = ({ onClose }) => {
       setUsers([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+
+  const handleDeleteUser = async (userId) => {
+    if (!window.confirm('Are you sure you want to delete this user?')) {
+      return;
+    }
+
+    try {
+      setError('');
+      await deleteUser(userId);
+      setSuccess('User deleted successfully');
+      await fetchUsers();  // Refresh the user list
+    } catch (err) {
+      setError(err.message || 'Failed to delete user');
     }
   };
 
@@ -46,7 +62,7 @@ const UserManagement = ({ onClose }) => {
     e.preventDefault();
     setError('');
     setSuccess('');
-    
+
     try {
       await createUser(newUser);
       setSuccess('User created successfully');
@@ -176,13 +192,21 @@ const UserManagement = ({ onClose }) => {
                               Admin
                             </span>
                           )}
-                          <span className={`px-2 py-1 rounded-full text-sm ${
-                            user.is_active 
+                          <span className={`px-2 py-1 rounded-full text-sm ${user.is_active
                               ? 'bg-green-100 text-green-800'
                               : 'bg-red-100 text-red-800'
-                          }`}>
+                            }`}>
                             {user.is_active ? 'Active' : 'Inactive'}
                           </span>
+                          {/* Add delete button */}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-red-600 hover:text-red-800 hover:bg-red-100"
+                            onClick={() => handleDeleteUser(user.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </div>
                       </div>
                     ))

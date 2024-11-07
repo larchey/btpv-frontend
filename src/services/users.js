@@ -41,3 +41,14 @@ export const updateUser = async (userId, userData) => {
     throw error;
   }
 };
+
+export const deleteUser = async (userId) => {
+  try {
+    await authFetch(`/users/${userId}`, {
+      method: 'DELETE'
+    });
+  } catch (error) {
+    console.error('Failed to delete user:', error);
+    throw error;
+  }
+};
