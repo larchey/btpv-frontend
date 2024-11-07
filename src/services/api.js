@@ -1,5 +1,5 @@
 // src/services/api.js
-const API_BASE = 'http://localhost:8000/api/v1';
+const API_BASE = '/api/v1';  // Remove hardcoded URL
 
 const authFetch = async (url, options = {}) => {
   const token = localStorage.getItem('token');
@@ -15,33 +15,44 @@ const authFetch = async (url, options = {}) => {
   };
 
   try {
-    console.log('Calling API:', `${API_BASE}${url}`);
     const response = await fetch(`${API_BASE}${url}`, {
       ...options,
-      headers,
+      headers
     });
 
-    console.log('API Response:', response.status, response.statusText);
-
-    let data;
-    try {
-      data = await response.json();
-    } catch (e) {
-      if (response.status === 204) {
-        return null;
+    // Handle non-JSON responses
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      const data = await response.json();
+      
+      if (!response.ok) {
+        // Handle authentication errors
+        if (response.status === 401) {
+          localStorage.removeItem('token');
+          window.location.reload();
+          throw new Error('Session expired. Please login again.');
+        }
+        
+        // Handle validation errors (422)
+        if (response.status === 422 && data.detail) {
+          throw new Error(Array.isArray(data.detail) 
+            ? data.detail.map(err => err.msg).join(', ')
+            : data.detail
+          );
+        }
+        
+        throw new Error(data.detail || 'Request failed');
       }
-      throw e;
+      
+      return data;
     }
 
-    if (!response.ok) {
-      if (response.status === 401) {
-        localStorage.removeItem('token');
-        window.location.reload();
-      }
-      throw new Error(data.detail || JSON.stringify(data));
+    // Handle non-JSON success responses
+    if (response.ok) {
+      return null;
     }
 
-    return data;
+    throw new Error('Invalid response format');
   } catch (error) {
     console.error('API Error:', error);
     throw error;
