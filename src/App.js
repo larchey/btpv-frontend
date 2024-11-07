@@ -19,9 +19,11 @@ const App = () => {
   const [error, setError] = useState('');
   const [showUserManagement, setShowUserManagement] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null); 
 
-  const handleLoginSuccess = () => {
+  const handleLoginSuccess = async () => {
     setIsLoggedIn(true);
+    await fetchCurrentUser();
     fetchGroups();
     checkAdminStatus();
   };
@@ -33,6 +35,17 @@ const App = () => {
     setGroups([]);
     setPasswords([]);
     setIsAdmin(false);
+    setCurrentUser(null);  // Clear current user on logout
+  };
+
+  const fetchCurrentUser = async () => {
+    try {
+      const user = await getCurrentUser();
+      setCurrentUser(user);
+    } catch (err) {
+      console.error('Failed to fetch current user:', err);
+      setError('Failed to fetch user details');
+    }
   };
 
   const checkAdminStatus = async () => {
@@ -86,7 +99,7 @@ const App = () => {
         setError('Please select a group first');
         return;
       }
-      
+
       // Add group_id to password data
       const fullPasswordData = {
         ...passwordData,
@@ -98,7 +111,7 @@ const App = () => {
 
       // Create the password
       await createPassword(fullPasswordData);
-      
+
       // Refresh the password list
       const updatedPasswords = await getGroupPasswords(selectedGroup);
       setPasswords(updatedPasswords);
@@ -110,6 +123,7 @@ const App = () => {
   useEffect(() => {
     if (isAuthenticated()) {
       setIsLoggedIn(true);
+      fetchCurrentUser(); 
       fetchGroups();
       checkAdminStatus();
     }
@@ -135,8 +149,8 @@ const App = () => {
                 <span>Manage Users</span>
               </Button>
             )}
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={handleLogout}
             >
               Logout
@@ -144,7 +158,7 @@ const App = () => {
           </div>
         </div>
       </div>
-      
+
       {showUserManagement && (
         <UserManagement onClose={() => setShowUserManagement(false)} />
       )}
@@ -163,6 +177,7 @@ const App = () => {
             selectedGroup={selectedGroup}
             onSelectGroup={handleSelectGroup}
             onCreateGroup={handleCreateGroup}
+            currentUser={currentUser}  // Add this prop
           />
           <PasswordList
             groupId={selectedGroup}

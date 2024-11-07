@@ -20,43 +20,30 @@ const authFetch = async (url, options = {}) => {
       headers
     });
 
-    // Handle non-JSON responses
+    // Handle non-200 responses first
+    if (!response.ok) {
+      let errorMessage = 'Request failed';
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.detail || errorMessage;
+      } catch {
+        // If we can't parse the error as JSON, use the status text
+        errorMessage = response.statusText;
+      }
+      throw new Error(errorMessage);
+    }
+
+    // Handle successful responses
     const contentType = response.headers.get('content-type');
     if (contentType && contentType.includes('application/json')) {
-      const data = await response.json();
-      
-      if (!response.ok) {
-        // Handle authentication errors
-        if (response.status === 401) {
-          localStorage.removeItem('token');
-          window.location.reload();
-          throw new Error('Session expired. Please login again.');
-        }
-        
-        // Handle validation errors (422)
-        if (response.status === 422 && data.detail) {
-          throw new Error(Array.isArray(data.detail) 
-            ? data.detail.map(err => err.msg).join(', ')
-            : data.detail
-          );
-        }
-        
-        throw new Error(data.detail || 'Request failed');
-      }
-      
-      return data;
+      return await response.json();
     }
 
-    // Handle non-JSON success responses
-    if (response.ok) {
-      return null;
-    }
-
-    throw new Error('Invalid response format');
+    // For non-JSON responses (like 204 No Content)
+    return null;
   } catch (error) {
     console.error('API Error:', error);
     throw error;
   }
 };
-
 export default authFetch;
