@@ -43,9 +43,9 @@ const GroupManagementModal = ({ group, onClose, onUpdate }) => {
     };
   
     const handleRemoveMember = async (username) => {
-      if (!window.confirm(`Remove ${username} from the group?`)) {
-        return;
-      }
+      // if (!window.confirm(`Remove ${username} from the group?`)) {
+      //   return;
+      // }
     
       try {
         setError('');

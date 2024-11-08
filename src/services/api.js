@@ -5,6 +5,7 @@ const authFetch = async (url, options = {}) => {
   const token = localStorage.getItem('token');
   
   if (!token) {
+    // handleLogout();
     throw new Error('No authentication token available');
   }
 

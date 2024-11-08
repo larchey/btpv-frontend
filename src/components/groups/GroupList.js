@@ -5,6 +5,7 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Users } from 'lucide-react';
 import GroupManagementModal from './GroupManagementModal';
+import authFetch from '../../services/api';
 
 const GroupList = ({ 
   groups, 
@@ -21,6 +22,15 @@ const GroupList = ({
     e.preventDefault();
     await onCreateGroup(newGroup);
     setNewGroup({ name: '', description: '' });
+  };
+
+  const fetchGroupDetails = async (groupId) => {
+    try {
+      const response = await authFetch(`/groups/${groupId}`);
+      setManagingGroup(response);
+    } catch (error) {
+      console.error('Failed to fetch group details:', error);
+    }
   };
 
   return (
@@ -88,9 +98,7 @@ const GroupList = ({
           group={managingGroup}
           onClose={() => setManagingGroup(null)}
           onUpdate={() => {
-            // Refresh groups data
-            onCreateGroup(); // This should fetch groups again
-            setManagingGroup(null);
+            fetchGroupDetails(managingGroup.id);
           }}
         />
       )}

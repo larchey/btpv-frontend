@@ -28,7 +28,6 @@ export const login = async (username, password) => {
 
 export const logout = () => {
   localStorage.removeItem('token');
-  window.location.href = '/';
 };
 
 export const isAuthenticated = () => {

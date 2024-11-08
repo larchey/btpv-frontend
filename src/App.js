@@ -126,6 +126,8 @@ const App = () => {
       fetchCurrentUser(); 
       fetchGroups();
       checkAdminStatus();
+    }else{
+      handleLogout();
     }
   }, []);
 

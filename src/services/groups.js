@@ -24,12 +24,11 @@ export const createGroup = async (groupData) => {
 
 export const addGroupMember = async (groupId, username) => {
   try {
-    const response = await authFetch(`/groups/${groupId}/members/${username}`, {
+    return await authFetch(`/groups/${groupId}/members/${username}`, {
       method: 'POST'
     });
-    return response;  // Will be the updated group data
   } catch (error) {
-    console.error('Failed to add group member:', error);
+    console.error('Failed to add member:', error);
     throw error;
   }
 };
@@ -40,7 +39,7 @@ export const removeGroupMember = async (groupId, username) => {
       method: 'DELETE'
     });
   } catch (error) {
-    console.error('Failed to remove group member:', error);
+    console.error('Failed to remove member:', error);
     throw error;
   }
 };
