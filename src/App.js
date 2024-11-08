@@ -10,6 +10,7 @@ import { isAuthenticated, logout } from './services/auth';
 import { getGroups, createGroup } from './services/groups';
 import { getGroupPasswords, createPassword } from './services/passwords';
 import { getCurrentUser } from './services/users';
+import { setLogoutHandler } from './services/api';
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -129,6 +130,10 @@ const App = () => {
     }else{
       handleLogout();
     }
+
+    setLogoutHandler(handleLogout);
+    // Clean up when component unmounts
+    return () => setLogoutHandler(null);
   }, []);
 
   if (!isLoggedIn) {
@@ -139,7 +144,7 @@ const App = () => {
     <div className="min-h-screen bg-gray-100">
       <div className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-xl font-semibold text-gray-900">Password Vault</h1>
+          <h1 className="text-xl font-semibold text-gray-900">🐢 Password Vault</h1>
           <div className="flex items-center space-x-4">
             {isAdmin && (
               <Button
@@ -179,7 +184,10 @@ const App = () => {
             selectedGroup={selectedGroup}
             onSelectGroup={handleSelectGroup}
             onCreateGroup={handleCreateGroup}
-            currentUser={currentUser}  // Add this prop
+            currentUser={currentUser}
+            onUpdate={() => {
+              fetchGroups();
+            }}
           />
           <PasswordList
             groupId={selectedGroup}

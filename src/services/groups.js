@@ -52,3 +52,14 @@ export const getAvailableUsers = async (groupId) => {
     throw error;
   }
 };
+
+export const deleteGroup = async (groupId) => {
+  try {
+    await authFetch(`/groups/${groupId}`, {
+      method: 'DELETE'
+    });
+  } catch (error) {
+    console.error('Failed to delete group:', error);
+    throw error;
+  }
+};

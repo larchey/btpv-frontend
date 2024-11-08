@@ -7,12 +7,14 @@ import { Users } from 'lucide-react';
 import GroupManagementModal from './GroupManagementModal';
 import authFetch from '../../services/api';
 
-const GroupList = ({ 
-  groups, 
-  selectedGroup, 
-  onSelectGroup, 
+
+const GroupList = ({
+  groups,
+  selectedGroup,
+  onSelectGroup,
   onCreateGroup,
-  currentUser  
+  currentUser,
+  onUpdate
 }) => {
   const [newGroup, setNewGroup] = useState({ name: '', description: '' });
   const [managingGroup, setManagingGroup] = useState(null);
@@ -24,6 +26,7 @@ const GroupList = ({
     setNewGroup({ name: '', description: '' });
   };
 
+
   const fetchGroupDetails = async (groupId) => {
     try {
       const response = await authFetch(`/groups/${groupId}`);
@@ -33,6 +36,7 @@ const GroupList = ({
     }
   };
 
+
   return (
     <>
       <Card>
@@ -40,13 +44,13 @@ const GroupList = ({
           <CardTitle>Groups</CardTitle>
         </CardHeader>
         <CardContent>
-        <Button
-          onClick={() => setShowForm(prev => !prev)}
-          className="mb-4"
-        >
-          {showForm ? '-' : '+'} Create Group
-        </Button>
-        {showForm && <form onSubmit={handleSubmit} className="mb-4 space-y-4 pb-14">
+          <Button
+            onClick={() => setShowForm(prev => !prev)}
+            className="mb-4"
+          >
+            {showForm ? '-' : '+'} Create Group
+          </Button>
+          {showForm && <form onSubmit={handleSubmit} className="mb-4 space-y-4 pb-14">
             <div className="space-y-2 ">
               <Input
                 placeholder="Group Name"
@@ -79,13 +83,13 @@ const GroupList = ({
                   {group.name}
                 </Button>
                 {group.owner_id === currentUser?.id && (
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => setManagingGroup(group)}
-                  >
-                    <Users className="h-4 w-14" />
-                  </Button>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => setManagingGroup(group)}
+                    >
+                      <Users className="h-4 w-14" />
+                    </Button>
                 )}
               </div>
             ))}
@@ -98,6 +102,7 @@ const GroupList = ({
           group={managingGroup}
           onClose={() => setManagingGroup(null)}
           onUpdate={() => {
+            onUpdate?.(); 
             fetchGroupDetails(managingGroup.id);
           }}
         />

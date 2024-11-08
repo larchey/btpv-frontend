@@ -1,11 +1,16 @@
 // src/services/api.js
-const API_BASE = 'http://localhost:8000/api/v1';  
+const API_BASE = 'http://localhost:8000/api/v1';    
+
+let logoutHandler = null;
+export const setLogoutHandler = (handler) => {
+  logoutHandler = handler;
+};
 
 const authFetch = async (url, options = {}) => {
   const token = localStorage.getItem('token');
   
   if (!token) {
-    // handleLogout();
+    if (logoutHandler) logoutHandler();
     throw new Error('No authentication token available');
   }
 
@@ -20,9 +25,11 @@ const authFetch = async (url, options = {}) => {
       ...options,
       headers
     });
-
-    // Handle non-200 responses first
-    if (!response.ok) {
+    if (response.status === 401) {
+      if (logoutHandler) logoutHandler();
+      throw new Error('Session expired. Please login again.');
+    }
+    else if (!response.ok) {
       let errorMessage = 'Request failed';
       try {
         const errorData = await response.json();
