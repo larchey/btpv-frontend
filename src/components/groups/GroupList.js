@@ -101,9 +101,11 @@ const GroupList = ({
         <GroupManagementModal
           group={managingGroup}
           onClose={() => setManagingGroup(null)}
-          onUpdate={() => {
-            onUpdate?.(); 
-            fetchGroupDetails(managingGroup.id);
+          onUpdate={(action) => {
+            onUpdate?.();
+            if (action?.action !== 'delete') {
+              fetchGroupDetails(managingGroup.id);
+            }
           }}
         />
       )}

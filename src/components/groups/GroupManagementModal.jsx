@@ -21,9 +21,9 @@ const GroupManagementModal = ({ group, onClose, onUpdate }) => {
   const handleDeleteGroup = async () => {
     try {
       await deleteGroup(groupToDelete.id);
-      onUpdate?.();  // Refresh groups list
       setGroupToDelete(null);
       onClose(); 
+      onUpdate?.({ action: 'delete'});  // Pass variable indicating deletion
     } catch (error) {
       console.error('Failed to delete group:', error);
     }
